@@ -260,7 +260,7 @@ fig.update_layout(
         y=0.1,
         xref='paper',
         yref='paper',
-        text='Source: <a href="https://en.wikipedia.org/wiki/G20">G20 - Wikipedia</a> | <a href="Global Findex database">Global Findex database</a>',
+        text='Source: <a href="https://en.wikipedia.org/wiki/G20">G20 - Wikipedia</a> | <a href="https://www.worldbank.org/en/publication/globalfindex/Data">Global Findex database</a>',
         showarrow = False
     )]
 )
