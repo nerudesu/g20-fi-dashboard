@@ -37,9 +37,19 @@ import pandas as pd
 import plotly.express as px
 import seaborn as sns
 
-st.title('G20 Financial Inclusion')
+col1, col2 = st.columns([1,2])
+
+with col1:
+  st.markdown('![G20 Presidency of Indonesia](https://drive.google.com/uc?id=1-0FMsHCpv7pIwG0nlSyCI5FcAUKzNRmH)')
+
+with col2:
+  st.title('G20 Financial Inclusion')
+  st.markdown("<h2 style='text-align: left; color: gray;'>GDP and demographics relation to the Financial Inclusion rate</h1>",
+            unsafe_allow_html=True)
+
+
 st.markdown('___')
-st.caption('Streamlit App by <a href="">Pradipta A. Suryadi</a>', unsafe_allow_html=True)
+st.caption('Streamlit App by <a href="https://github.com/nerudesu">Pradipta A. Suryadi</a>', unsafe_allow_html=True)
 
 
 _ = """# Data Collection
@@ -220,6 +230,7 @@ st.header('Overview')
 st.write('Financial inclusion means that individuals and businesses have access to useful and affordable financial products and services that meet their needs – transactions, payments, savings, credit and insurance – delivered in a responsible and sustainable way.')
 st.write('The Group of Twenty (G20) recognizes that financial inclusion is a key enabler in the fight against poverty.')
 
+# map_scope = st.selectbox(label="Select scope", options=['World', 'USA', 'Europe', 'Asia', 'Africa', 'North America', 'South America'])
 
 fig = px.choropleth(df_g20_new, locations="codewb",
                     color="incomegroupwb21", # lifeExp is a column of gapminder
@@ -229,7 +240,7 @@ fig = px.choropleth(df_g20_new, locations="codewb",
                     # animation_frame="year",
                     hover_name="countrynewwb", # column to add to hover information
                     hover_data=['incomegroupwb21'],
-                    scope="world",
+                    scope='world',
                     labels={'incomegroupwb21':'Income group'},
                     category_orders={'incomegroupwb21': ['High income', 'Upper middle income', 'Lower middle income']}
                     # color_continuous_scale=px.colors.sequential.Plasma
@@ -257,3 +268,4 @@ fig.update_layout(
 # fig.show()
 # Plot!
 st.plotly_chart(fig, use_container_width=True)
+st.info('As we can see on the map, Indonesia still categorized on Lower middle income', icon="ℹ️")
