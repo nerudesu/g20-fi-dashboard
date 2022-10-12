@@ -92,14 +92,34 @@ def get_worldbank_data_source():
   return data
 
 # Create a text element and let the reader know the data is loading.
-data_load_state = st.text('Loading WorldBank data...')
+data_load_state = st.text('Loading Global Findex data...')
 # Load 10,000 rows of data into the dataframe.
 databank = get_worldbank_data_source()
+# Notify the reader that the data was successfully loaded.
+data_load_state.text("Fetched (using st.cache): Global Findex data")
+
+# clone the returned value so we can freely mutate it.
+df = databank.copy()
+
+
+# Get GDP data
+# https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.CD
+gdp_data_source = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT5VFhPjLMaR1IA6VsQn4RaSDqs7w-6rIqV-py3uLTLOQN0Zvs6N93EW11-t7d0sQ/pub?output=xlsx"
+
+@st.cache
+def get_gdp_data_source():
+  data = pd.read_excel(gdp_data_source)
+  return data
+
+# Create a text element and let the reader know the data is loading.
+data_load_state = st.text('Loading WorldBank data...')
+# Load 10,000 rows of data into the dataframe.
+gdp_data = get_gdp_data_source()
 # Notify the reader that the data was successfully loaded.
 data_load_state.text("Fetched (using st.cache): WorldBank data")
 
 # clone the returned value so we can freely mutate it.
-df = databank.copy()
+df_gdp = gdp_data.copy()
 
 
 _ = """### Sneak peek into the data."""
@@ -227,45 +247,109 @@ df_g20_pivot = pd.pivot_table(df_g20_new,
 
 
 st.header('Overview')
+st.subheader('Financial Inclusion')
 st.write('Financial inclusion means that individuals and businesses have access to useful and affordable financial products and services that meet their needs – transactions, payments, savings, credit and insurance – delivered in a responsible and sustainable way.')
 st.write('The Group of Twenty (G20) recognizes that financial inclusion is a key enabler in the fight against poverty.')
 
 # map_scope = st.selectbox(label="Select scope", options=['World', 'USA', 'Europe', 'Asia', 'Africa', 'North America', 'South America'])
 
-fig = px.choropleth(df_g20_new, locations="codewb",
-                    color="incomegroupwb21", # lifeExp is a column of gapminder
-                    color_discrete_map={'Lower middle income':'red',
-                                        'Upper middle income':'Yellow',
-                                        'High income':'Green'},
-                    # animation_frame="year",
-                    hover_name="countrynewwb", # column to add to hover information
-                    hover_data=['incomegroupwb21'],
-                    scope='world',
-                    labels={'incomegroupwb21':'Income group'},
-                    category_orders={'incomegroupwb21': ['High income', 'Upper middle income', 'Lower middle income']}
-                    # color_continuous_scale=px.colors.sequential.Plasma
-                    )
+fig_geo = px.choropleth(df_g20_new, locations="codewb",
+                        color="incomegroupwb21",  # lifeExp is a column of gapminder
+                        color_discrete_map={'Lower middle income': 'red',
+                                            'Upper middle income': 'Yellow',
+                                            'High income': 'Green'},
+                        # animation_frame="year",
+                        hover_name="countrynewwb",  # column to add to hover information
+                        hover_data=['incomegroupwb21'],
+                        scope='world',
+                        labels={'incomegroupwb21': 'Income group'},
+                        category_orders={'incomegroupwb21': [
+                            'High income', 'Upper middle income', 'Lower middle income']}
+                        # color_continuous_scale=px.colors.sequential.Plasma
+                        )
 
-fig.update_layout(
-    title = {
-        'text':'Member countries in the G-20'
+fig_geo.update_layout(
+    title={
+        'text': 'Member countries in the G-20'
     },
     geo=dict(
         showframe=False,
         showcoastlines=False,
         projection_type='equirectangular'
     ),
-    annotations = [dict(
+    annotations=[dict(
         x=0.5,
         y=0.1,
         xref='paper',
         yref='paper',
         text='Source: <a href="https://en.wikipedia.org/wiki/G20">G20 - Wikipedia</a> | <a href="https://www.worldbank.org/en/publication/globalfindex/Data">Global Findex database</a>',
-        showarrow = False
+        showarrow=False
     )]
 )
 
 # fig.show()
 # Plot!
-st.plotly_chart(fig, use_container_width=True)
-st.info('As we can see on the map, Indonesia still categorized on Lower middle income', icon="ℹ️")
+st.plotly_chart(fig_geo, use_container_width=True)
+st.info('With its economy impacted by the pandemic, **Indonesia** went from upper-middle income to **lower-middle income** status as of **July 2021**.', icon="ℹ️")
+
+st.subheader("GDP Per capita")
+st.write('GDP per capita shows a country\'s GDP divided by its total population. This gives us a way of describing the average level of wealth per person in a country.')
+
+# Create new DF
+headers = df_gdp.iloc[2]
+new_df_gdp  = pd.DataFrame(df_gdp.values[3:], columns=headers)
+
+# Melt df
+new_df_gdp = new_df_gdp.melt(id_vars=["Country Name", "Country Code", "Indicator Name", "Indicator Code"],
+                             var_name="Year",
+                             value_name="Value")
+
+# Cast year into int
+new_df_gdp = new_df_gdp[new_df_gdp['Year'].notnull()].copy()
+new_df_gdp['Year'] = new_df_gdp['Year'].astype('int')
+
+# Turkey is not on the list (writed as Turkiye)
+new_df_gdp_replaced = new_df_gdp.replace(to_replace="Turkiye",
+                                         value="Turkey")
+
+new_df_gdp_filtered = new_df_gdp_replaced[new_df_gdp_replaced['Year'].isin([2011,2014,2017,2021])]
+new_df_gdp_filtered = new_df_gdp_filtered[new_df_gdp_filtered['Country Name'].isin(g20_member_list_new)]
+
+# Merge data frame
+df_merged = df_g20_new.merge(new_df_gdp_filtered, how='left', left_on=['countrynewwb','year'], right_on=['Country Name','Year'])
+
+fig_gdp = px.scatter(df_merged,
+                 x="Value",
+                 y="account_t_d",
+                 size="pop_adult",
+                 color="incomegroupwb21",
+                 animation_frame="year",
+                 hover_name="countrynewwb",
+                 labels={'incomegroupwb21': 'Income group', 'Value': 'GDP Per Capita',
+                         'account_t_d': 'Financial Inclusion Rate'},
+                 category_orders={'incomegroupwb21': [
+                   'High income', 'Upper middle income', 'Lower middle income']},
+                 log_x=True,
+                 size_max=60)
+
+fig_gdp.update_layout(
+    title={
+        'text': 'Member countries in the G-20'
+    },
+    geo=dict(
+        showframe=False,
+        showcoastlines=False,
+        projection_type='equirectangular'
+    ),
+    annotations=[dict(
+        x=0.9,
+        y=0.1,
+        xref='paper',
+        yref='paper',
+        text='Source: <a href="https://en.wikipedia.org/wiki/G20">G20 - Wikipedia</a> | <a href="https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.CD">World Bank</a>',
+        showarrow=False
+    )]
+)
+
+st.plotly_chart(fig_gdp, use_container_width=True)
+st.info('Countries with higher GDP per capita are likely to have financial inclusive systems.', icon="ℹ️")
