@@ -36,20 +36,28 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import seaborn as sns
+from millify import millify
 
-col1, col2 = st.columns([1,2])
+st.set_page_config(
+    page_title='G20 Financial Inclusion',
+    page_icon=':earth_asia:'
+)
+
+col1, col2 = st.columns([1, 2])
 
 with col1:
-  st.markdown('![G20 Presidency of Indonesia](https://drive.google.com/uc?id=1-0FMsHCpv7pIwG0nlSyCI5FcAUKzNRmH)')
+    st.markdown(
+        '![G20 Presidency of Indonesia](https://drive.google.com/uc?id=1-0FMsHCpv7pIwG0nlSyCI5FcAUKzNRmH)')
 
 with col2:
-  st.title('G20 Financial Inclusion')
-  st.markdown("<h2 style='text-align: left; color: gray;'>GDP and demographics relation to the Financial Inclusion rate</h1>",
-            unsafe_allow_html=True)
+    st.title('G20 Financial Inclusion')
+    st.markdown("<h2 style='text-align: left; color: gray;'>GDP and demographics relation to the Financial Inclusion rate</h1>",
+                unsafe_allow_html=True)
 
 
 st.markdown('___')
-st.caption('Streamlit App by <a href="https://github.com/nerudesu">Pradipta A. Suryadi</a>', unsafe_allow_html=True)
+st.caption('Streamlit App by <a href="https://github.com/nerudesu">Pradipta A. Suryadi</a>',
+           unsafe_allow_html=True)
 
 
 _ = """# Data Collection
@@ -64,8 +72,9 @@ g20_member_source = 'https://en.wikipedia.org/wiki/G20'
 
 @st.cache
 def get_g20_member_list():
-  data = pd.read_html(io=g20_member_source)[3]['Member'].tolist()
-  return data
+    data = pd.read_html(io=g20_member_source)[3]['Member'].tolist()
+    return data
+
 
 # Create a text element and let the reader know the data is loading.
 data_load_state = st.text('Loading G20 Member country List data...')
@@ -86,10 +95,12 @@ Fetch data from worldbank and put it into dataframe
 # worldbank_data_source = 'https://thedocs.worldbank.org/en/doc/6fa0abd1f7f266f7115adae07278eb97-0050062022/original/Databank-wide.xlsx'
 worldbank_data_source = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSXwoJAEWLKvOVKZTlNoNrCuH3j0Asiz5ysJdt5XYqF0YY3fWQv3H-NnJ6BcT39yw/pub?output=xlsx'
 
+
 @st.cache
 def get_worldbank_data_source():
-  data = pd.read_excel(worldbank_data_source)
-  return data
+    data = pd.read_excel(worldbank_data_source)
+    return data
+
 
 # Create a text element and let the reader know the data is loading.
 data_load_state = st.text('Loading Global Findex data...')
@@ -106,10 +117,12 @@ df = databank.copy()
 # https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.CD
 gdp_data_source = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT5VFhPjLMaR1IA6VsQn4RaSDqs7w-6rIqV-py3uLTLOQN0Zvs6N93EW11-t7d0sQ/pub?output=xlsx"
 
+
 @st.cache
 def get_gdp_data_source():
-  data = pd.read_excel(gdp_data_source)
-  return data
+    data = pd.read_excel(gdp_data_source)
+    return data
+
 
 # Create a text element and let the reader know the data is loading.
 data_load_state = st.text('Loading WorldBank data...')
@@ -141,7 +154,7 @@ reference = df.iloc[0].to_dict()
 
 _ = """Remove the first row because we already put it into the dict"""
 
-df.drop(index=df.index[0],inplace=True)
+df.drop(index=df.index[0], inplace=True)
 
 # df
 
@@ -180,13 +193,14 @@ Eureopean Union --> We want to fetch only country data at this moment
 """
 
 # Create mapping using dict
-replace_map = {'South Korea' : 'Korea, Rep.', 'Russia' : 'Russian Federation'}
+replace_map = {'South Korea': 'Korea, Rep.', 'Russia': 'Russian Federation'}
 
 for key in replace_map:
-  g20_member_list_new = [member.replace(key, replace_map[key]) for member in g20_member_list]
-  g20_member_list = g20_member_list_new
+    g20_member_list_new = [member.replace(
+        key, replace_map[key]) for member in g20_member_list]
+    g20_member_list = g20_member_list_new
 
-g20_member_list_new = g20_member_list[:-1] # Delete EU using slicing
+g20_member_list_new = g20_member_list[:-1]  # Delete EU using slicing
 # g20_member_list_new
 
 _ = """#### Creating a new data frame"""
@@ -194,7 +208,8 @@ _ = """#### Creating a new data frame"""
 df_g20_new = df[df['countrynewwb'].isin(g20_member_list_new)]
 # df_g20_new
 
-df_g20_new['countrynewwb'].nunique() # Check if number of country already correct
+# Check if number of country already correct
+df_g20_new['countrynewwb'].nunique()
 
 _ = """Get sample data for Indonesia"""
 
@@ -225,7 +240,7 @@ _ = """# Data Visualization
 
 df_g20_pivot = pd.pivot_table(df_g20_new,
                               values='account_t_d',
-                              index=['incomegroupwb21','countrynewwb'],
+                              index=['incomegroupwb21', 'countrynewwb'],
                               columns=['year'],
                               aggfunc='sum',
                               fill_value=None,
@@ -255,9 +270,9 @@ st.write('The Group of Twenty (G20) recognizes that financial inclusion is a key
 
 fig_geo = px.choropleth(df_g20_new, locations="codewb",
                         color="incomegroupwb21",  # lifeExp is a column of gapminder
-                        color_discrete_map={'Lower middle income': 'red',
-                                            'Upper middle income': 'Yellow',
-                                            'High income': 'Green'},
+                        color_discrete_map={'Lower middle income': '#E15139',
+                                            'Upper middle income': '#FCA121',
+                                            'High income': '#37B96D'},
                         # animation_frame="year",
                         hover_name="countrynewwb",  # column to add to hover information
                         hover_data=['incomegroupwb21'],
@@ -297,7 +312,7 @@ st.write('GDP per capita shows a country\'s GDP divided by its total population.
 
 # Create new DF
 headers = df_gdp.iloc[2]
-new_df_gdp  = pd.DataFrame(df_gdp.values[3:], columns=headers)
+new_df_gdp = pd.DataFrame(df_gdp.values[3:], columns=headers)
 
 # Melt df
 new_df_gdp = new_df_gdp.melt(id_vars=["Country Name", "Country Code", "Indicator Name", "Indicator Code"],
@@ -312,25 +327,31 @@ new_df_gdp['Year'] = new_df_gdp['Year'].astype('int')
 new_df_gdp_replaced = new_df_gdp.replace(to_replace="Turkiye",
                                          value="Turkey")
 
-new_df_gdp_filtered = new_df_gdp_replaced[new_df_gdp_replaced['Year'].isin([2011,2014,2017,2021])]
-new_df_gdp_filtered = new_df_gdp_filtered[new_df_gdp_filtered['Country Name'].isin(g20_member_list_new)]
+new_df_gdp_filtered = new_df_gdp_replaced[new_df_gdp_replaced['Year'].isin([
+                                                                           2011, 2014, 2017, 2021])]
+new_df_gdp_filtered = new_df_gdp_filtered[new_df_gdp_filtered['Country Name'].isin(
+    g20_member_list_new)]
 
 # Merge data frame
-df_merged = df_g20_new.merge(new_df_gdp_filtered, how='left', left_on=['countrynewwb','year'], right_on=['Country Name','Year'])
+df_merged = df_g20_new.merge(new_df_gdp_filtered, how='left', left_on=[
+                             'countrynewwb', 'year'], right_on=['Country Name', 'Year'])
 
 fig_gdp = px.scatter(df_merged,
-                 x="Value",
-                 y="account_t_d",
-                 size="pop_adult",
-                 color="incomegroupwb21",
-                 animation_frame="year",
-                 hover_name="countrynewwb",
-                 labels={'incomegroupwb21': 'Income group', 'Value': 'GDP Per Capita',
-                         'account_t_d': 'Financial Inclusion Rate'},
-                 category_orders={'incomegroupwb21': [
-                   'High income', 'Upper middle income', 'Lower middle income']},
-                 log_x=True,
-                 size_max=60)
+                     x="Value",
+                     y="account_t_d",
+                     size="pop_adult",
+                     color="incomegroupwb21",
+                     color_discrete_map={'Lower middle income': '#E15139',
+                                         'Upper middle income': '#FCA121',
+                                         'High income': '#37B96D'},
+                     animation_frame="year",
+                     hover_name="countrynewwb",
+                     labels={'incomegroupwb21': 'Income group', 'Value': 'GDP Per Capita',
+                             'account_t_d': 'Financial Inclusion Rate'},
+                     category_orders={'incomegroupwb21': [
+                         'High income', 'Upper middle income', 'Lower middle income']},
+                     log_x=True,
+                     size_max=60)
 
 fig_gdp.update_layout(
     title={
@@ -353,3 +374,94 @@ fig_gdp.update_layout(
 
 st.plotly_chart(fig_gdp, use_container_width=True)
 st.info('Countries with higher GDP per capita are likely to have financial inclusive systems.', icon="ℹ️")
+
+st.header('Insight')
+st.subheader('Formally banked adults')
+
+# Global account ownership increased from 51 percent to 76 percent between 2011 and 2021
+df_world = df[df['countrynewwb'] == 'World']
+new_df_world = df_world[df_world['year'].notnull()].copy()
+new_df_world['year'] = new_df_world['year'].astype('int')
+
+acc_own_world_2021 = new_df_world.query('year==2021').account_t_d.iloc[0]
+acc_own_world_2011 = new_df_world.query('year==2011').account_t_d.iloc[0]
+acc_own_world_deltas = acc_own_world_2021 - acc_own_world_2011
+
+acc_own_g20_2021 = df_merged.query(
+    'year==2021')['account_t_d'].aggregate('average')
+acc_own_g20_2011 = df_merged.query(
+    'year==2011')['account_t_d'].aggregate('average')
+acc_own_g20_deltas = acc_own_g20_2021 - acc_own_g20_2011
+
+# Adults with an account (%), 2011–2021
+
+acc_col1, acc_col2, acc_col3 = st.columns([2, 1, 1])
+with acc_col1:
+    st.markdown(
+        'Global account ownership <span style="color:green">**increased**</span> from 51 percent to 76 percent between 2011 and 2021.', unsafe_allow_html=True)
+    st.markdown('Adults with an account (%), 2011–2021')
+with acc_col2:
+    st.metric('World', '{0:.2f} %'.format(
+        acc_own_world_2021*100), '{0:.2f} %'.format(acc_own_world_deltas/acc_own_world_2011*100))
+with acc_col3:
+    st.metric('G20', '{0:.2f} %'.format(
+        acc_own_g20_2021*100), '{0:.2f} %'.format(acc_own_g20_deltas/acc_own_g20_2011*100))
+
+# Unbanked by gender
+
+new_df_world['unbanked_female'] = (1-new_df_world['account_t_d_1'])
+new_df_world['unbanked_male'] = (1-new_df_world['account_t_d_2'])
+
+new_df_world['unbanked_female_percentage'] = new_df_world.unbanked_female / \
+    (new_df_world.unbanked_male + new_df_world.unbanked_female)
+new_df_world['unbanked_male_percentage'] = new_df_world.unbanked_male / \
+    (new_df_world.unbanked_male + new_df_world.unbanked_female)
+
+df_gender = new_df_world[['countrynewwb', 'year',
+                          'unbanked_female_percentage', 'unbanked_male_percentage']]
+df_gender_pie = pd.melt(df_gender, id_vars=['countrynewwb', 'year'], value_vars=[
+                        'unbanked_female_percentage', 'unbanked_male_percentage'], var_name='unbanked_gender_percentage')
+
+fig_gender_pie = px.pie(df_gender_pie,
+                        names='unbanked_gender_percentage',
+                        values='value',
+                        color='unbanked_gender_percentage',
+                        color_discrete_map={'unbanked_female_percentage': '#F2A3B9',
+                                            'unbanked_male_percentage': '#7BE1F5'},
+                        # labels={"unbanked_gender_percentage": "Gender (%)",
+                        #         "unbanked_female_percentage": "Female",
+                        #         "unbanked_male_percentage": "Male"},
+                        title='Adults without an account by gender (%), World average 2011-2021',
+                        hole=0.3
+                        )
+fig_gender_pie.update_traces(
+   hovertemplate=None,
+   hoverinfo='skip'
+)
+
+st.plotly_chart(fig_gender_pie, use_container_width=True)
+st.info('Most unbanked adults are woman', icon="ℹ️")
+
+# st.subheader('Adults with credit at regulated institutions')
+
+tech1, tech2, tech3 = st.columns(3)
+
+with tech1:
+  st.subheader('Pop of G20')
+  g20_adult_pop = df_merged.query('year==2021')['pop_adult'].aggregate('sum')
+  st.metric(label='Adult Pop', value=millify(g20_adult_pop, precision=2))
+  st.markdown('{0} People'.format(millify((1-acc_own_g20_2021)*g20_adult_pop,precision=2)))
+with tech2:
+  st.subheader('Mobile phone')
+  phone_percentage = df_merged.query('year==2021')['Own_phone'].aggregate('average')
+  st.metric(label='Has access to the Internet', value='{0:.2f} %'.format(phone_percentage*100))
+  st.markdown('{0} People'.format(millify(g20_adult_pop*phone_percentage,precision=2)))
+with tech3:
+  st.subheader('Internet')
+  internet_percentage = df_merged.query('year==2021')['Internet'].aggregate('average')
+  st.metric(label='Own a mobile phone', value='{0:.2f} %'.format(internet_percentage*100))
+  st.markdown('{0} People'.format(millify(g20_adult_pop*internet_percentage,precision=2)))
+
+st.header('Conclusion')
+st.write('Gaps have remained in financial access, particularly for women') #, the poor, the least educated and the unemployed.')
+st.write('People already have a mobile phone and internet access, digital technology can be opportunities to closes the gaps.')

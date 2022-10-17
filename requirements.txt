@@ -3,3 +3,4 @@ seaborn
 plotly
 lxml
 openpyxl
+millify
