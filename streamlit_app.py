@@ -435,8 +435,8 @@ fig_gender_pie = px.pie(df_gender_pie,
                         hole=0.3
                         )
 fig_gender_pie.update_traces(
-   hovertemplate=None,
-   hoverinfo='skip'
+    hovertemplate=None,
+    hoverinfo='skip'
 )
 
 st.plotly_chart(fig_gender_pie, use_container_width=True)
@@ -447,21 +447,29 @@ st.info('Most unbanked adults are woman', icon="ℹ️")
 tech1, tech2, tech3 = st.columns(3)
 
 with tech1:
-  st.subheader('Pop of G20')
-  g20_adult_pop = df_merged.query('year==2021')['pop_adult'].aggregate('sum')
-  st.metric(label='Adult Pop', value=millify(g20_adult_pop, precision=2))
-  st.markdown('{0} People'.format(millify((1-acc_own_g20_2021)*g20_adult_pop,precision=2)))
+    st.subheader('Pop of G20')
+    g20_adult_pop = df_merged.query('year==2021')['pop_adult'].aggregate('sum')
+    st.metric(label='Adult Pop', value=millify(g20_adult_pop, precision=2))
+    st.markdown('{0} People'.format(
+        millify((1-acc_own_g20_2021)*g20_adult_pop, precision=2)))
 with tech2:
-  st.subheader('Mobile phone')
-  phone_percentage = df_merged.query('year==2021')['Own_phone'].aggregate('average')
-  st.metric(label='Has access to the Internet', value='{0:.2f} %'.format(phone_percentage*100))
-  st.markdown('{0} People'.format(millify(g20_adult_pop*phone_percentage,precision=2)))
+    st.subheader('Mobile phone')
+    phone_percentage = df_merged.query(
+        'year==2021')['Own_phone'].aggregate('average')
+    st.metric(label='Own a mobile phone',
+              value='{0:.2f} %'.format(phone_percentage*100))
+    st.markdown('{0} People'.format(
+        millify(g20_adult_pop*phone_percentage, precision=2)))
 with tech3:
-  st.subheader('Internet')
-  internet_percentage = df_merged.query('year==2021')['Internet'].aggregate('average')
-  st.metric(label='Own a mobile phone', value='{0:.2f} %'.format(internet_percentage*100))
-  st.markdown('{0} People'.format(millify(g20_adult_pop*internet_percentage,precision=2)))
+    st.subheader('Internet')
+    internet_percentage = df_merged.query(
+        'year==2021')['Internet'].aggregate('average')
+    st.metric(label='Has access to the Internet',
+              value='{0:.2f} %'.format(internet_percentage*100))
+    st.markdown('{0} People'.format(
+        millify(g20_adult_pop*internet_percentage, precision=2)))
 
 st.header('Conclusion')
-st.write('Gaps have remained in financial access, particularly for women') #, the poor, the least educated and the unemployed.')
+# , the poor, the least educated and the unemployed.')
+st.write('Gaps have remained in financial access, particularly for women')
 st.write('People already have a mobile phone and internet access, digital technology can be opportunities to closes the gaps.')
