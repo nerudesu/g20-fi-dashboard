@@ -447,13 +447,13 @@ st.info('Most unbanked adults are woman', icon="ℹ️")
 tech1, tech2, tech3 = st.columns(3)
 
 with tech1:
-    st.subheader('Pop of G20')
+    st.subheader(':family: Pop of G20')
     g20_adult_pop = df_merged.query('year==2021')['pop_adult'].aggregate('sum')
     st.metric(label='Adult Pop', value=millify(g20_adult_pop, precision=2))
-    st.markdown('{0} People'.format(
-        millify((1-acc_own_g20_2021)*g20_adult_pop, precision=2)))
+    st.markdown('<span style="color:red">{0}</span> People Underserved'.format(
+        millify((1-acc_own_g20_2021)*g20_adult_pop, precision=2)), unsafe_allow_html=True)
 with tech2:
-    st.subheader('Mobile phone')
+    st.subheader(':iphone: Mobile phone')
     phone_percentage = df_merged.query(
         'year==2021')['Own_phone'].aggregate('average')
     st.metric(label='Own a mobile phone',
@@ -461,7 +461,7 @@ with tech2:
     st.markdown('{0} People'.format(
         millify(g20_adult_pop*phone_percentage, precision=2)))
 with tech3:
-    st.subheader('Internet')
+    st.subheader(':computer: Internet')
     internet_percentage = df_merged.query(
         'year==2021')['Internet'].aggregate('average')
     st.metric(label='Has access to the Internet',
@@ -472,4 +472,4 @@ with tech3:
 st.header('Conclusion')
 # , the poor, the least educated and the unemployed.')
 st.write('Gaps have remained in financial access, particularly for women')
-st.write('People already have a mobile phone and internet access, digital technology can be opportunities to closes the gaps.')
+st.write('People already have a **mobile phone** and **internet access**, **digital technology** can be opportunities to closes the gaps.')
