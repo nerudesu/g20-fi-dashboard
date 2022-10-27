@@ -469,6 +469,22 @@ with tech3:
     st.markdown('{0} People'.format(
         millify(g20_adult_pop*internet_percentage, precision=2)))
 
+st.subheader(
+    'Corellation between bank account, internet access and mobile phone')
+df_corr_world = df.query('codewb not in ["EAS","ECS","LCN","MEA","NAC","SSF","OED","ARB","EMU","HIC","LIC","LMC","UMC","MIC","LMY","EAP","ECA","LAC","MNA","SAS","SSA","WLD"] and year == 2021.0')[
+    ['account_t_d', 'Internet', 'Own_phone']].astype(float)
+matrix_corr_world = df_corr_world.corr(method ='pearson')
+fig_corr = px.imshow(matrix_corr_world.round(2),
+                text_auto=True,
+                aspect="auto",
+                labels=dict(color="Corellation"),
+                x=['Bank Account', 'Internet Access', 'Mobile Phone'],
+                y=['Bank Account', 'Internet Access', 'Mobile Phone'],
+                zmin=-1,
+                zmax=1)
+st.plotly_chart(fig_corr, use_container_width=True)
+st.info('Internet Access and Mobile Phone have Strong Positive Relation to Bank Account', icon="ℹ️")
+
 st.header('Conclusion')
 # , the poor, the least educated and the unemployed.')
 st.write('Gaps have remained in financial access, particularly for women')
