@@ -307,7 +307,7 @@ fig_geo.update_layout(
 st.plotly_chart(fig_geo, use_container_width=True)
 st.info('With its economy impacted by the pandemic, **Indonesia** went from upper-middle income to **lower-middle income** status as of **July 2021**.', icon="ℹ️")
 
-st.subheader("GDP Per capita")
+st.header("GDP Per capita")
 st.write('GDP per capita shows a country\'s GDP divided by its total population. This gives us a way of describing the average level of wealth per person in a country.')
 
 # Create new DF
@@ -375,7 +375,7 @@ fig_gdp.update_layout(
 st.plotly_chart(fig_gdp, use_container_width=True)
 st.info('Countries with higher GDP per capita are likely to have financial inclusive systems.', icon="ℹ️")
 
-st.header('Insight')
+st.header('Demographics')
 st.subheader('Formally banked adults')
 
 # Global account ownership increased from 51 percent to 76 percent between 2011 and 2021
@@ -422,12 +422,17 @@ df_gender = new_df_world[['countrynewwb', 'year',
 df_gender_pie = pd.melt(df_gender, id_vars=['countrynewwb', 'year'], value_vars=[
                         'unbanked_female_percentage', 'unbanked_male_percentage'], var_name='unbanked_gender_percentage')
 
+gender_labels={"unbanked_female_percentage": "Female",
+        "unbanked_male_percentage": "Male"}
+
+df_gender_pie['unbanked_gender_percentage'] = df_gender_pie['unbanked_gender_percentage'].map(gender_labels)
+
 fig_gender_pie = px.pie(df_gender_pie,
                         names='unbanked_gender_percentage',
                         values='value',
                         color='unbanked_gender_percentage',
-                        color_discrete_map={'unbanked_female_percentage': '#F2A3B9',
-                                            'unbanked_male_percentage': '#7BE1F5'},
+                        color_discrete_map={'Female': '#F2A3B9',
+                                            'Male': '#7BE1F5'},
                         # labels={"unbanked_gender_percentage": "Gender (%)",
                         #         "unbanked_female_percentage": "Female",
                         #         "unbanked_male_percentage": "Male"},
@@ -483,9 +488,10 @@ fig_corr = px.imshow(matrix_corr_world.round(2),
                 zmin=-1,
                 zmax=1)
 st.plotly_chart(fig_corr, use_container_width=True)
-st.info('Internet Access and Mobile Phone have Strong Positive Relation to Bank Account', icon="ℹ️")
+st.info('Internet Access and Mobile Phone have **Strong Positive** Relation to Bank Account', icon="ℹ️")
 
 st.header('Conclusion')
 # , the poor, the least educated and the unemployed.')
 st.write('Gaps have remained in financial access, particularly for women')
 st.write('People already have a **mobile phone** and **internet access**, **digital technology** can be opportunities to closes the gaps.')
+st.write('The strategy is to promote the development of **digital payment systems** that allow digital or **mobile access** to **financial services** without a bank account. It will also allow women access to financial services, advancing gender equality.')
