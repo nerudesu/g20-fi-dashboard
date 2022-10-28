@@ -422,10 +422,11 @@ df_gender = new_df_world[['countrynewwb', 'year',
 df_gender_pie = pd.melt(df_gender, id_vars=['countrynewwb', 'year'], value_vars=[
                         'unbanked_female_percentage', 'unbanked_male_percentage'], var_name='unbanked_gender_percentage')
 
-gender_labels={"unbanked_female_percentage": "Female",
-        "unbanked_male_percentage": "Male"}
+gender_labels = {"unbanked_female_percentage": "Female",
+                 "unbanked_male_percentage": "Male"}
 
-df_gender_pie['unbanked_gender_percentage'] = df_gender_pie['unbanked_gender_percentage'].map(gender_labels)
+df_gender_pie['unbanked_gender_percentage'] = df_gender_pie['unbanked_gender_percentage'].map(
+    gender_labels)
 
 fig_gender_pie = px.pie(df_gender_pie,
                         names='unbanked_gender_percentage',
@@ -476,18 +477,33 @@ with tech3:
 
 st.subheader(
     'Corellation between bank account, internet access and mobile phone')
-df_corr_world = df.query('codewb not in ["EAS","ECS","LCN","MEA","NAC","SSF","OED","ARB","EMU","HIC","LIC","LMC","UMC","MIC","LMY","EAP","ECA","LAC","MNA","SAS","SSA","WLD"] and year == 2021.0')[
+
+corr1, corr2 = st.columns([2,1])
+
+with corr1:
+    df_corr_world = df.query('codewb not in ["EAS","ECS","LCN","MEA","NAC","SSF","OED","ARB","EMU","HIC","LIC","LMC","UMC","MIC","LMY","EAP","ECA","LAC","MNA","SAS","SSA","WLD"] and year == 2021.0')[
     ['account_t_d', 'Internet', 'Own_phone']].astype(float)
-matrix_corr_world = df_corr_world.corr(method ='pearson')
-fig_corr = px.imshow(matrix_corr_world.round(2),
-                text_auto=True,
-                aspect="auto",
-                labels=dict(color="Corellation"),
-                x=['Bank Account', 'Internet Access', 'Mobile Phone'],
-                y=['Bank Account', 'Internet Access', 'Mobile Phone'],
-                zmin=-1,
-                zmax=1)
-st.plotly_chart(fig_corr, use_container_width=True)
+    matrix_corr_world = df_corr_world.corr(method='pearson')
+    fig_corr = px.imshow(matrix_corr_world.round(2),
+                        text_auto=True,
+                        aspect="auto",
+                        labels=dict(color="Corellation"),
+                        x=['Bank Account', 'Internet Access', 'Mobile Phone'],
+                        y=['Bank Account', 'Internet Access', 'Mobile Phone'],
+                        zmin=-1,
+                        zmax=1)
+    st.plotly_chart(fig_corr, use_container_width=True)
+
+with corr2:
+    data = {'Range': ['0.00', '0.00 - 0.25', '0.25 - 0.50', '0.50 - 0.75', '0.75 - 1.00', '1.00'], 'Association': ['No',
+                                                                                                            'Neglible', 'Weak', 'Strong', 'Very strong', 'Perfect']}
+
+    df_pearson = pd.DataFrame(data)
+    style = df_pearson.style.hide(axis='index')
+    st.markdown('Pearson Corellation Value')
+    st.markdown('')
+    st.write(style.to_html(), unsafe_allow_html=True)
+
 st.info('Internet Access and Mobile Phone have **Strong Positive** Relation to Bank Account', icon="ℹ️")
 
 st.header('Conclusion')
